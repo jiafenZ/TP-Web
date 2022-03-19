@@ -160,7 +160,7 @@ export default {
         limit: 10,
         data_name: ''
       },
-      id: '参数ID',
+      id: '数据ID',
       data_name: '参数名称',
       data_value: '参数值',
       createTime: '创建时间',
