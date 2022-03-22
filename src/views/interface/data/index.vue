@@ -168,7 +168,7 @@ export default {
       create_user: '创建人',
       update: '更新人',
       update_time: '更新时间',
-
+      actions: '操作',
       temp: {
         id: '',
         data_name: '',
