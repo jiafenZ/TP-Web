@@ -187,7 +187,7 @@ export default {
           { max: 30, message: '参数名称长度不能超过30位' }
         ],
         data_value: [
-          { required: true, message: '参数值必填', trigger: 'blur' },
+          { required: true, message: '参数值必填', trigger: 'blur' }
         ]
       }
     }
