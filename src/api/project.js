@@ -147,3 +147,40 @@ export function deleteHeader(data) {
     data
   })
 }
+
+// ------------------ 项目模块信息相关接口 ------------------
+// 新增项目模块名称接口
+export function addModule(data) {
+  return request({
+    url: '/module/add',
+    method: 'post',
+    data
+  })
+}
+
+// 获取项目模块名称列表接口
+export function moduleList(data) {
+  return request({
+    url: '/module/list',
+    method: 'post',
+    data
+  })
+}
+
+// 更新项目模块信息接口
+export function updateModule(data) {
+  return request({
+    url: '/module/update',
+    method: 'post',
+    data
+  })
+}
+
+// 删除项目模块接口
+export function deleteModule(data) {
+  return request({
+    url: '/module/delete',
+    method: 'post',
+    data
+  })
+}

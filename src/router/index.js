@@ -48,6 +48,12 @@ export const constantRoutes = [
     hidden: true
   },
 
+  // {
+  //   path: '/add',
+  //   component: () => import('@/views/interface/api/add'),
+  //   hidden: true
+  // },
+
   {
     path: '/',
     component: Layout,
@@ -92,6 +98,12 @@ export const constantRoutes = [
         meta: { title: '项目配置', icon: 'tree' },
         children: [
           {
+            path: 'module',
+            component: () => import('@/views/interface/projectConfigure/module/index'),
+            name: 'module',
+            meta: { title: '模块配置' }
+          },
+          {
             path: 'database',
             component: () => import('@/views/interface/projectConfigure/database/index'),
             name: 'database',
@@ -128,6 +140,12 @@ export const constantRoutes = [
         name: 'api',
         component: () => import('@/views/interface/api/index'),
         meta: { title: '基础接口', icon: 'tree' }
+      },
+      {
+        path: 'add',
+        name: 'add',
+        component: () => import('@/views/interface/api/add')
+        // meta: { title: '添加', icon: 'tree' }
       },
       {
         path: 'case',

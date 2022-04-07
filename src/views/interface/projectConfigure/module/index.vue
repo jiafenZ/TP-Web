@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <div style="display: inline-block; color:#696969; font-weight:bold">配置名称：</div>
-      <el-input v-model="listQuery.configName" placeholder="请输入配置名称" clearable style="width: 200px; margin-top: 15px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <div style="display: inline-block; color:#696969; font-weight:bold">模块名称：</div>
+      <el-input v-model="listQuery.moduleName" placeholder="请输入模块名称" clearable style="width: 200px; margin-top: 15px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <div style="display: inline-block; margin-left: 20px; color:#696969; font-weight:bold">项目名称：</div>
       <!-- 下拉搜索框 -->
       <el-select v-model="listQuery.projectName" placeholder="请选择项目名称" clearable style="width: 200px; margin-top: 15px;" class="filter-item" @keyup.enter.native="handleFilter">
@@ -16,7 +16,7 @@
       <el-button v-waves class="filter-item" style="margin-left: 15px;" type="primary" icon="el-icon-search" @click="handleFilter">
         查询
       </el-button>
-      <el-button class="filter-item" style="margin-left: 15px" type="primary" @click="handleCreate">新增配置</el-button>
+      <el-button class="filter-item" style="margin-left: 15px" type="primary" @click="handleCreate">新增模块</el-button>
     </div>
     <br><br>
     <el-table
@@ -39,9 +39,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column :label="configName" align="center">
+      <el-table-column :label="moduleName" align="center">
         <template v-if="row != null" slot-scope="{ row }">
-          <span>{{ row.configName }}</span>
+          <span>{{ row.moduleName }}</span>
         </template>
       </el-table-column>
 
@@ -51,19 +51,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column :label="environment" align="center">
-        <template v-if="row != null" slot-scope="{ row }">
-          <span>{{ row.environment }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column :label="base_url" align="center">
-        <template v-if="row != null" slot-scope="{ row }">
-          <span>{{ row.base_url }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column :label="createTime" align="center" width="100">
+      <el-table-column :label="createTime" align="center">
         <template slot-scope="{ row }">
           <span v-if="row.create_time != null">{{
             row.create_time
@@ -81,7 +69,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column :label="updateTime" align="center" width="100">
+      <el-table-column :label="updateTime" align="center">
         <template slot-scope="{ row }">
           <span v-if="row.update_time != null">{{
             row.update_time
@@ -141,22 +129,6 @@
         label-width="90px"
         style="width: 400px; margin-left: 50px"
       >
-        <el-form-item
-          :label="configName"
-          prop="configName"
-          placeholder="请输入配置名称"
-        >
-          <el-input v-model="temp.configName" />
-        </el-form-item>
-
-        <el-form-item
-          :label="base_url"
-          prop="base_url"
-          placeholder="请输入base_url"
-        >
-          <el-input v-model="temp.base_url" />
-        </el-form-item>
-
         <el-form-item :label="projectName" prop="projectName">
           <el-select
             v-model="temp.projectName"
@@ -172,19 +144,12 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item :label="environment" prop="environment">
-          <el-select
-            v-model="temp.environment"
-            class="filter-item"
-            placeholder="请选择运行环境"
-          >
-            <el-option
-              v-for="item in environmentOptions"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
-          </el-select>
+        <el-form-item
+          :label="moduleName"
+          prop="moduleName"
+          placeholder="请输入模块名称"
+        >
+          <el-input v-model="temp.moduleName" />
         </el-form-item>
 
       </el-form>
@@ -197,12 +162,12 @@
 </template>
 
 <script>
-import { projectList, addUrl, urlList, updateUrl, deleteUrl } from '@/api/project'
+import { projectList, addModule, moduleList, updateModule, deleteModule } from '@/api/project'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'UrlList',
+  name: 'ModuleList',
   components: { Pagination },
   directives: { waves },
   data() {
@@ -210,21 +175,18 @@ export default {
       tableKey: 0,
       list: [],
       projectOptions: [],
-      environmentOptions: ['test', 'release', 'develop'],
       total: 0,
       listLoading: true,
       // 默认请求参数
       listQuery: {
         page: 1,
         limit: 10,
-        configName: '',
+        moduleName: '',
         projectName: ''
       },
-      id: '配置ID',
-      configName: '配置名称',
+      id: '模块ID',
+      moduleName: '模块名称',
       projectName: '项目名称',
-      environment: '运行环境',
-      base_url: 'base URL',
       createTime: '创建时间',
       createUser: '创建人',
       updateTime: '更新时间',
@@ -235,32 +197,23 @@ export default {
 
       temp: {
         id: '',
-        configName: '',
-        projectName: '',
-        environment: '',
-        base_url: ''
+        moduleName: '',
+        projectName: ''
       },
       dialogFormVisible: false,
       dialogstatus: '',
       textMap: {
-        update: '编辑数据库配置信息',
-        create: '新增数据库配置信息'
+        update: '编辑项目模块信息',
+        create: '新增项目模块信息'
       },
       // 输入框规则校验
       rules: {
-        configName: [
-          { required: true, message: '配置名称必填', trigger: 'blur' },
-          { max: 30, message: '配置名称长度不能超过30位' }
+        moduleName: [
+          { required: true, message: '模块名称必填', trigger: 'blur' },
+          { max: 30, message: '模块名称长度不能超过30位' }
         ],
         projectName: [
           { required: true, message: '请选择项目名称', trigger: 'change' }
-        ],
-        environment: [
-          { required: true, message: '请选择运行环境', trigger: 'change' }
-        ],
-        base_url: [
-          { required: true, message: '连接地址必填', trigger: 'blur' },
-          { max: 120, message: '连接地址长度不能超过120位' }
         ]
       }
     }
@@ -276,11 +229,11 @@ export default {
         this.projectOptions = response.data.projectList
       })
     },
-    // 调用数据库配置列表接口，获取数据库配置信息列表
+    // 调用项目模块列表接口，获取项目模块信息列表
     getList() {
       this.listLoading = true
-      urlList(this.listQuery).then((response) => {
-        this.list = response.data.UrlList
+      moduleList(this.listQuery).then((response) => {
+        this.list = response.data.moduleList
         this.total = response.data.total
         this.listLoading = false
       })
@@ -292,10 +245,8 @@ export default {
     resetTemp() {
       this.temp = {
         id: '',
-        configName: '',
-        projectName: '',
-        environment: '',
-        base_url: ''
+        moduleName: '',
+        projectName: ''
       }
     },
     handleCreate() {
@@ -307,12 +258,12 @@ export default {
       })
     },
 
-    // 新增数据库配置信息
+    // 新增项目模块信息
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          addUrl(tempData).then(() => {
+          addModule(tempData).then(() => {
             this.list.unshift(this.temp)
             this.getList()
             this.dialogFormVisible = false
@@ -327,7 +278,7 @@ export default {
       })
     },
 
-    // 编辑数据库配置信息
+    // 编辑项目模块信息
     handleUpdate(row) {
       // 编辑弹窗信息回显
       this.temp = Object.assign({}, row) // copy obj
@@ -341,7 +292,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateUrl(tempData).then(() => {
+          updateModule(tempData).then(() => {
             const index = this.list.findIndex((v) => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.getList()
@@ -356,10 +307,10 @@ export default {
         }
       })
     },
-    // 删除数据库配置信息
+    // 删除项目模块信息
     handleDelete(row, index) {
-      const configName = { configName: index.configName }
-      deleteUrl(configName).then(() => {
+      const moduleName = { moduleName: index.moduleName }
+      deleteModule(moduleName).then(() => {
         this.getList()
         this.$notify({
           title: '成功',

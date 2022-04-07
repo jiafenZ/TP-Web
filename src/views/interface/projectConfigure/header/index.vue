@@ -202,7 +202,7 @@ import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'MysqlList',
+  name: 'HeaderList',
   components: { Pagination },
   directives: { waves },
   data() {
@@ -279,7 +279,7 @@ export default {
     getList() {
       this.listLoading = true
       headerList(this.listQuery).then((response) => {
-        this.list = response.data.mysqlList
+        this.list = response.data.headerList
         this.total = response.data.total
         this.listLoading = false
       })
