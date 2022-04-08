@@ -243,8 +243,8 @@ export default {
       dialogFormVisible: false,
       dialogstatus: '',
       textMap: {
-        update: '编辑数据库配置信息',
-        create: '新增数据库配置信息'
+        update: '编辑请求头配置信息',
+        create: '新增请求头配置信息'
       },
       // 输入框规则校验
       rules: {
