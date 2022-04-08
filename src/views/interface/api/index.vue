@@ -1,9 +1,28 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+      <div style="display: inline-block; color:#696969; font-weight:bold">接口名称：</div>
       <el-input v-model="listQuery.apiName" placeholder="请输入接口名" clearable style="width: 200px; margin-top: 15px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.projectName" placeholder="请输入项目名" clearable style="width: 200px;margin-left: 5px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.moduleName" placeholder="请输入模块名" clearable style="width: 200px;margin-left: 5px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <div style="display: inline-block; margin-left: 20px; color:#696969; font-weight:bold">项目名称：</div>
+      <!-- 下拉搜索框 -->
+      <el-select v-model="listQuery.projectName" placeholder="请选择项目名称" clearable style="width: 200px; margin-top: 15px;" class="filter-item" @change="getModule()">
+        <el-option
+          v-for="item in projectOptions"
+          :key="item.projectName"
+          :label="item.projectName"
+          :value="item.projectName"
+        />
+      </el-select>
+      <div style="display: inline-block; margin-left: 20px; color:#696969; font-weight:bold">模块名称：</div>
+      <!-- 下拉搜索框 -->
+      <el-select v-model="listQuery.moduleName" placeholder="请选择模块名称" clearable style="width: 200px; margin-top: 15px;" class="filter-item" @keyup.enter.native="handleFilter">
+        <el-option
+          v-for="item in moduleOptions"
+          :key="item.moduleName"
+          :label="item.moduleName"
+          :value="item.moduleName"
+        />
+      </el-select>
       <el-button id="select" v-waves class="filter-item" style="margin-left: 15px;" type="primary" icon="el-icon-search" @click="handleFilter">
         查询
       </el-button>
@@ -91,6 +110,7 @@
       >
         <template slot-scope="{ row, $index }">
           <el-button type="primary" size="mini" style="margin-right: 10px" @click="handleUpdate(row)">编辑</el-button>
+          <el-button type="success" size="mini" style="margin-right: 10px" @click="handleUpdate(row)">编辑</el-button>
           <el-popover v-model="row.visible" placement="top" width="200">
             <p>确定删除吗？</p>
             <div style="text-align: right; margin: 0">
@@ -116,6 +136,7 @@
 <script>
 
 import { apiList } from '@/api/api_info'
+import { projectList, moduleNameList } from '@/api/project'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -137,22 +158,41 @@ export default {
       update_time: '更新时间',
       actions: '操作',
       tableKey: 0,
+      projectOptions: [],
+      moduleOptions: [],
       list: [],
       total: 0,
       listLoading: true,
       listQuery: {
         page: 1,
         limit: 10,
-        api_name: '',
-        module_name: '',
-        project_name: ''
+        apiName: '',
+        moduleName: '',
+        projectName: ''
       }
     }
   },
   created() {
     this.getList()
+    this.getProject()
   },
   methods: {
+    // 调用项目列表接口，获取项目名称
+    getProject() {
+      projectList().then((response) => {
+        this.projectOptions = response.data.projectList
+      })
+    },
+    // 调用项目模块列表接口，获取项目模块名称
+    getModule() {
+      this.listQuery.moduleName = ''
+      const data = {
+        'projectName': this.listQuery.projectName
+      }
+      moduleNameList(data).then((response) => {
+        this.moduleOptions = response.data.moduleNameList
+      })
+    },
     // 调用获取基础接口列表接口，获取基础接口列表信息
     getList() {
       this.listLoading = true

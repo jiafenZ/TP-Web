@@ -149,7 +149,7 @@ export function deleteHeader(data) {
 }
 
 // ------------------ 项目模块信息相关接口 ------------------
-// 新增项目模块名称接口
+// 新增项目模块接口
 export function addModule(data) {
   return request({
     url: '/module/add',
@@ -158,10 +158,19 @@ export function addModule(data) {
   })
 }
 
-// 获取项目模块名称列表接口
+// 获取项目模块列表接口
 export function moduleList(data) {
   return request({
     url: '/module/list',
+    method: 'post',
+    data
+  })
+}
+
+// 获取项目模块名称列表接口
+export function moduleNameList(data) {
+  return request({
+    url: '/module/name_list',
     method: 'post',
     data
   })
