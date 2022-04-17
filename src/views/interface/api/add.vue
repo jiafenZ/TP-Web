@@ -1,58 +1,110 @@
 <template>
   <div class="app-container">
-    <el-card class="container-card">
+    <el-card  class="container-card">
+      <h3 class="title">新增基础接口</h3>
+      <el-button id="debug" class="button-debug" type="success" @click="debug()">调试</el-button>
+      <el-button id="submit" class="button-submit" type="primary" @click="submit()">保存</el-button>
+      <el-divider style="margin-top: 3px;" />
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="temp"
+        label-position="left"
+        label-width="90px"
+        style="margin-left: 50px;"
+      >
+        <el-col :span="12">
+          <div class="base-info">
+            <el-form-item
+              :label="apiName"
+              prop="apiName"
+              placeholder="请输入接口名称"
+              style="width: 60%;"
+              >
+              <el-input v-model="temp.apiName" />
+            </el-form-item>
 
-      <el-col :span="12">
-        <div class="grid-content bg-purple-light">
-          <h3 style="margin-left: 15px;">新增基础接口</h3>
-          <el-divider />
-          <div class="add-area">
-            <el-form
-              ref="dataForm"
-              :rules="rules"
-              :model="temp"
-              label-position="left"
-              label-width="90px"
-              style="margin-left: 50px;"
+            <el-form-item
+              :label="projectName"
+              prop="projectName"
+              placeholder="请选择项目名称"
             >
+              <!-- 下拉搜索框 -->
+              <el-select v-model="listQuery.projectName" placeholder="请选择项目名称" clearable style="width: 54%;" class="filter-item" @change="getModule()">
+                <el-option
+                  v-for="item in projectOptions"
+                  :key="item.projectName"
+                  :label="item.projectName"
+                  :value="item.projectName"
+                />
+              </el-select>
+            </el-form-item>
 
-              <el-form-item
-                :label="apiName"
-                prop="apiName"
-                placeholder="请输入接口名称"
-                style="width: 320px;display: inline-block;"
-              >
-                <el-input v-model="temp.apiName" />
-              </el-form-item>
+            <el-form-item
+              :label="moduleName"
+              prop="moduleName"
+              placeholder="请选择模块名称"
+            >
+              <!-- 下拉搜索框 -->
+              <el-select v-model="listQuery.moduleName" placeholder="请选择模块名称" clearable style="width: 54%;" class="filter-item" @keyup.enter.native="handleFilter">
+                <el-option
+                  v-for="item in moduleOptions"
+                  :key="item.moduleName"
+                  :label="item.moduleName"
+                  :value="item.moduleName"
+                />
+              </el-select>
+            </el-form-item>
 
-              <el-form-item
-                :label="projectName"
-                prop="projectName"
-                placeholder="请选择项目名称"
-                style="width: 320px;display: inline-block;margin-left: 80px"
-              >
-                <el-input v-model="temp.projectName" />
-              </el-form-item>
+            <el-form-item
+              :label="path"
+              prop="path"
+              placeholder="请输入请求路径"
+              style="width: 60%;"
+            >
+              <el-input v-model="temp.path" />
+            </el-form-item>
 
-              <el-form-item
-                :label="moduleName"
-                prop="moduleName"
-                placeholder="请选择模块名称"
-                style="width: 320px;display: inline-block;"
-              >
-                <el-input v-model="temp.moduleName" />
-              </el-form-item>
+            <el-form-item
+              :label="headers"
+              prop="headers"
+              placeholder="请输入请求头"
+            >
+              <el-input v-model="temp.headers" type="textarea" />
+            </el-form-item>
 
-              <el-form-item
-                :label="path"
-                prop="path"
-                placeholder="请输入请求路径"
-                style="width: 320px;display: inline-block;margin-left: 80px"
-              >
-                <el-input v-model="temp.path" />
-              </el-form-item>
+            <el-form-item
+              :label="debugHeaders"
+              prop="debugHeaders"
+              placeholder="请输入调试请求头"
+            >
+              <el-input v-model="temp.debugHeaders" type="textarea" />
+            </el-form-item>
 
-              <div v-for="(item,i) in studentList">
+            <el-form-item
+              :label="body"
+              prop="body"
+              placeholder="请输入body"
+            >
+              <el-input v-model="temp.body" type="textarea" />
+            </el-form-item>
+
+            <el-form-item
+              :label="debugBody"
+              prop="debugBody"
+              placeholder="请输入调试body"
+            >
+              <el-input v-model="temp.debugBody" type="textarea" />
+            </el-form-item>
+          </div>
+        </el-col>
+
+        <el-col :span="2">
+          <div class="verticalBar" />
+        </el-col>
+
+        <el-col :span="8">
+          <div v-for="(item,i) in studentList" :key="item.content">
                 <el-form-item label="前置参数 :" prop="dataType" style="width: 50%;display: inline-block;">
                   <el-input v-model="studentList[i].dataType" clearable placeholder="请选择参数类型" />
                 </el-form-item>
@@ -62,96 +114,15 @@
                 <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="addList()" />
                 <el-button v-if="i>0" class="el-icon-minus" type="text" @click="subList(i)" />
               </div>
+        </el-col>
 
-              <el-form-item
-                :label="headers"
-                prop="headers"
-                placeholder="请输入请求头"
-              >
-                <el-input v-model="temp.headers" type="textarea" />
-              </el-form-item>
-
-              <el-form-item
-                :label="debugHeaders"
-                prop="debugHeaders"
-                placeholder="请输入调试请求头"
-              >
-                <el-input v-model="temp.debugHeaders" type="textarea" />
-              </el-form-item>
-
-              <el-form-item
-                :label="body"
-                prop="body"
-                placeholder="请输入body"
-              >
-                <el-input v-model="temp.body" type="textarea" />
-              </el-form-item>
-
-              <el-form-item
-                :label="debugBody"
-                prop="debugBody"
-                placeholder="请输入调试body"
-              >
-                <el-input v-model="temp.debugBody" type="textarea" />
-              </el-form-item>
-
-              <div v-for="(item,i) in studentList">
-                <el-form-item label="参数提取 :" prop="dataType" style="width: 50%;display: inline-block;">
-                  <el-input v-model="studentList[i].dataType" clearable placeholder="请输入参数名称" />
-                </el-form-item>
-                <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="addList()" />
-                <el-button v-if="i>0" class="el-icon-minus" type="text" @click="subList(i)" />
-              </div>
-
-              <div v-for="(item,i) in studentList">
-                <el-form-item label="响应断言 :" prop="dataType" style="width: 50%;display: inline-block;">
-                  <el-input v-model="studentList[i].dataType" clearable placeholder="请输入参数名称" />
-                </el-form-item>
-                <el-form-item prop="dataName" style="width: 50%;display: inline-block;margin-left: -80px">
-                  <el-input v-model="studentList[i].dataName" clearable placeholder="请输入预期值" />
-                </el-form-item>
-                <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="addList()" />
-                <el-button v-if="i>0" class="el-icon-minus" type="text" @click="subList(i)" />
-              </div>
-
-              <div v-for="(item,i) in studentList">
-                <el-form-item label="数据库断言" prop="dataType" style="width: 50%;display: inline-block;">
-                  <el-input v-model="studentList[i].dataType" clearable placeholder="请输入执行SQL" />
-                </el-form-item>
-                <el-form-item prop="dataName" style="width: 50%;display: inline-block;margin-left: -80px">
-                  <el-input v-model="studentList[i].dataName" clearable placeholder="请输入预期值" />
-                </el-form-item>
-                <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="addList()" />
-                <el-button v-if="i>0" class="el-icon-minus" type="text" @click="subList(i)" />
-              </div>
-
-            </el-form>
-          </div>
-        </div>
-      </el-col>
-
-      <el-col :span="2">
-        <div class="verticalBar" />
-      </el-col>
-
-      <el-col :span="8">
-        <div class="grid-content bg-purple" style="display: inline-block;width: 500px">
-          <h3 style="text-align:center;">接口调试</h3>
-          <br><br><br>
-          <el-input placeholder="请输入环境名" style="width: 150px" @keyup.enter.native="handleFilter" />
-          <el-button style="margin-left: 15px;" type="primary" @click="handleFilter">
-            运行
-          </el-button>
-          <br><br>
-          <el-card>
-            接口返回结果<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-          </el-card>
-        </div>
-      </el-col>
+      </el-form>
     </el-card>
   </div>
 </template>
+
 <script>
+import { projectList, moduleNameList } from '@/api/project'
 export default {
   name: 'Add',
   data() {
@@ -167,6 +138,8 @@ export default {
       debugHeaders: '调试请求头',
       body: 'body',
       debugBody: '调试body',
+      projectOptions: [],
+      moduleOptions: [],
       temp: {
         id: '',
         apiName: '',
@@ -192,13 +165,39 @@ export default {
       },
       studentList: [
         { name: '', age: '' }
-      ]
+      ],
+      listQuery: {
+        page: 1,
+        limit: 10,
+        apiName: '',
+        moduleName: '',
+        projectName: ''
+      }
     }
   },
   show() {
     this.visi = true
   },
+  created() {
+    this.getProject()
+  },
   methods: {
+    // 调用项目列表接口，获取项目名称
+    getProject() {
+      projectList().then((response) => {
+        this.projectOptions = response.data.projectList
+      })
+    },
+    // 调用项目模块列表接口，获取项目模块名称
+    getModule() {
+      this.listQuery.moduleName = ''
+      const data = {
+        'projectName': this.listQuery.projectName
+      }
+      moduleNameList(data).then((response) => {
+        this.moduleOptions = response.data.moduleNameList
+      })
+    },
     show() {
       this.visi = true
     },
@@ -215,39 +214,61 @@ export default {
 </script>
 
 <style>
-.app-container{
-  height:100%;
-  width:100%;
+.app-container {
+  height: 100%;
+  width: 100%;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  /* align-items: center; // 垂直居中 */
   justify-content: center;
   display: flex;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 }
-.container-card{
-  height:100%;
-  width:100%;
-  overflow: auto;
+.container-card {
+  height: 100%;
+  width: 100%;
 }
-  .grid-content {
-    border-radius: 4px;
-    min-height: 36px;
-  }
+.title {
+  margin-left: 15px;
+  margin-top: 5px;
+  display: inline-block;
+}
+.button-debug {
+  float: right;
+  margin-left: 15px;
+  display: inline-block;
+}
+.button-submit {
+  float: right;
+  display: inline-block;
+}
+.el-divider--horizontal {
+  margin-top: 8px;
+}
+.base-info {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}
+.el-card__body{
+  height: 100%;
+} 
+.el-col {
+  height: 100%;
+}
+.el-form {
+  height: 90%;
+} 
 .verticalBar {
-        width: 1px;
-        height: 780px;
-        background: #D3D3D3;
-        display: inline-block;
-        margin-top: 31px;
-        vertical-align: top;
-        margin-right: 10px;
-        margin-left: 50px;
-    }
-.el-col-6 {
-    width: 8%;
+  width: 1px;
+  height: 600px;
+  background: #D3D3D3;
+  display: inline-block;
+  margin-top: 31px;
+  vertical-align: top;
+  margin-right: 10px;
+  margin-left: 50px;
 }
 </style>
