@@ -11,7 +11,7 @@
           >
             <div>
               {{ data.day.split('-').slice(2).join('-') }}
-              <div v-for="item in todoListTag" :key="item.todo_data">
+              <div v-for="item in todoListTag" :key="item.content">
                 <div v-if="item.tag === 1" class="tag">
                   <i v-if="item.todo_data.slice(5,10) === data.day.split('-').slice(1).join('-')" class="el-icon-alarm-clock" />
                 </div>
@@ -26,6 +26,7 @@
               placement="bottom"
               width="350"
               trigger="click"
+              :ref="'popover-' + data.day"
             >
               <h3 style="text-align: center;">待办列表</h3>
               <el-input v-model="input" placeholder="添加待办事项" @keypress.native.enter="addByEnterKey()" />
@@ -40,7 +41,8 @@
               </el-checkbox-group>
               <p slot="reference" :class="data.isSelected ? 'is-selected' : ''" class="click-border" @click="getList(data.day)" />
               <br><br>
-              <el-button type="primary" size="mini" style="margin-left: 130px;" @click="submit(data.day)">保存</el-button>
+              <el-button size="mini" type="primary" style="margin-left: 100px;" @click="pCancel(data.day)">取消</el-button>
+              <el-button type="primary" size="mini" @click="visible = false,submit(data.day)">保存</el-button>
             </el-popover>
           </template>
         </el-calendar>
@@ -180,6 +182,7 @@ export default {
           'todo_id': this.todo_id
         }
         addTodoList(data).then(() => {
+          this.pCancel(data.todo_date)
           this.$notify({
             title: '成功',
             message: '添加成功',
@@ -195,6 +198,12 @@ export default {
           duration: 2000
         })
       }
+    },
+    pCancel(date) {
+        this.pClose(date)
+      },
+    pClose(date) {
+      this.$refs[`popover-` + date].doClose()
     }
   }
 }
