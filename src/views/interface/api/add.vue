@@ -11,7 +11,6 @@
         :model="temp"
         label-position="left"
         label-width="90px"
-        style="margin-left: 50px;"
       >
         <el-col :span="12">
           <div class="base-info">
@@ -30,7 +29,7 @@
               placeholder="请选择项目名称"
             >
               <!-- 下拉搜索框 -->
-              <el-select v-model="listQuery.projectName" placeholder="请选择项目名称" clearable style="width: 54%;" class="filter-item" @change="getModule()">
+              <el-select v-model="temp.projectName" placeholder="请选择项目名称" clearable style="width: 54%;" class="filter-item" @change="getModule()">
                 <el-option
                   v-for="item in projectOptions"
                   :key="item.projectName"
@@ -46,7 +45,7 @@
               placeholder="请选择模块名称"
             >
               <!-- 下拉搜索框 -->
-              <el-select v-model="listQuery.moduleName" placeholder="请选择模块名称" clearable style="width: 54%;" class="filter-item" @keyup.enter.native="handleFilter">
+              <el-select v-model="temp.moduleName" placeholder="请选择模块名称" clearable style="width: 54%;" class="filter-item" @keyup.enter.native="handleFilter">
                 <el-option
                   v-for="item in moduleOptions"
                   :key="item.moduleName"
@@ -104,16 +103,56 @@
         </el-col>
 
         <el-col :span="8">
-          <div v-for="(item,i) in studentList" :key="item.content">
-                <el-form-item label="前置参数 :" prop="dataType" style="width: 50%;display: inline-block;">
-                  <el-input v-model="studentList[i].dataType" clearable placeholder="请选择参数类型" />
-                </el-form-item>
-                <el-form-item prop="dataName" style="width: 50%;display: inline-block;margin-left: -80px">
-                  <el-input v-model="studentList[i].dataName" clearable placeholder="请输入参数名称" />
-                </el-form-item>
-                <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="addList()" />
-                <el-button v-if="i>0" class="el-icon-minus" type="text" @click="subList(i)" />
-              </div>
+          <div class="parameter-info">
+            <div v-for="(item,i) in temp.pre_parameter" :key="i + 'parameterType'">
+              <el-form-item label="前置参数 :" prop="parameterType" style="display: inline-block;">
+                <!-- 下拉搜索框 -->
+              <el-select v-model="temp.pre_parameter[i].parameterType" placeholder="请选择参数类型" clearable style="width: 80%;">
+                <el-option
+                  v-for="items in parameterTypeOptions"
+                  :key="items.typeName"
+                  :label="items.typeName"
+                  :value="items.typeName"
+                />
+              </el-select>
+              </el-form-item>
+              <el-form-item prop="parameterName" style="width: 60%;margin-left: -130px;display: inline-block;">
+                <el-input v-model="temp.pre_parameter[i].parameterName" clearable placeholder="请输入前置参数名称" />
+              </el-form-item>
+              <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="preParameterAddList()" />
+              <el-button v-if="i>0" class="el-icon-minus" type="text" @click="preParameterSubList(i)" />
+            </div>
+
+            <div v-for="(item,i) in temp.after_parameter" :key="i + 'dataName'">
+              <el-form-item label="参数提取 :" prop="after_parameter" style="width: 88%;display: inline-block;">
+                <el-input v-model="temp.after_parameter[i].dataName" clearable placeholder="请输入提取参数名称" />
+              </el-form-item>
+              <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="afterParameterAddList()" />
+              <el-button v-if="i>0" class="el-icon-minus" type="text" @click="afterParameterSubList(i)" />
+            </div>
+
+            <div v-for="(item,i) in temp.assert_parameter" :key="i + 'item.value'">
+              <el-form-item label="响应断言 :" prop="assert_parameter" style="width: 88%;">
+                <el-input v-model="temp.assert_parameter[i].name" clearable placeholder="请输入参数名称" />
+              </el-form-item>
+              <el-form-item prop="assertValue" style="width: 88%;display: inline-block;">
+                <el-input v-model="temp.assert_parameter[i].value" type="textarea" clearable placeholder="请输入预期值" />
+              </el-form-item>
+              <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="assertParameterAddList()" />
+              <el-button v-if="i>0" class="el-icon-minus" type="text" @click="assertParameterSubList(i)" />
+            </div>
+
+            <div v-for="(item,i) in temp.assert_sql" :key="i + 'item.sql'">
+              <el-form-item label="数据库断言" prop="assert_sql" style="width: 88%;">
+                <el-input v-model="temp.assert_sql[i].sql" type="textarea" clearable placeholder="请输入执行SQL" />
+              </el-form-item>
+              <el-form-item prop="sqlValue" style="width: 88%;display: inline-block;">
+                <el-input v-model="temp.assert_sql[i].value" clearable placeholder="请输入预期值" />
+              </el-form-item>
+              <el-button class="el-icon-plus" type="text" style="margin-left: 10px" @click="sqlParameterAddList()" />
+              <el-button v-if="i>0" class="el-icon-minus" type="text" @click="sqlParameterSubList(i)" />
+            </div>
+          </div>
         </el-col>
 
       </el-form>
@@ -131,19 +170,53 @@ export default {
       apiName: '接口名称',
       projectName: '项目名称',
       moduleName: '模块名称',
+      projectOptions: [],
+      moduleOptions: [],
       path: '请求路径',
-      dataType: '前置参数类型',
-      dataName: '前置参数名称',
       headers: '请求头',
       debugHeaders: '调试请求头',
       body: 'body',
       debugBody: '调试body',
-      projectOptions: [],
-      moduleOptions: [],
+      parameterType: '前置参数类型',
+      parameterTypeOptions: [{typeName: '系统配置参数'}, {typeName: '接口返回参数'}],
+      parameterName: '前置参数名称',
+      after_parameter: '参数提取',
+      assert_parameter: '响应断言',
+      assertValue: '响应预期断言值',
+      assert_sql: '数据库断言',
+      sqlValue: 'sql预期断言值',
       temp: {
         id: '',
         apiName: '',
-        projectName: ''
+        projectName: '',
+        moduleName: '',
+        path: '',
+        headers: '',
+        debugHeaders: '',
+        body: '',
+        debugBody: '',
+        pre_parameter: [
+          { parameterType: '', 
+            parameterName: '' 
+          }
+        ],
+        after_parameter: [
+          {
+            dataName: ''
+          }
+        ],
+        assert_parameter: [
+          {
+            name: '',
+            value : ''
+          }
+        ],
+        assert_sql: [
+          {
+            sql: '',
+            value : ''
+          }
+        ]
       },
       // 输入框规则校验
       rules: {
@@ -162,16 +235,6 @@ export default {
         path: [
           { required: true, message: '请求路径必填', trigger: 'blur' }
         ]
-      },
-      studentList: [
-        { name: '', age: '' }
-      ],
-      listQuery: {
-        page: 1,
-        limit: 10,
-        apiName: '',
-        moduleName: '',
-        projectName: ''
       }
     }
   },
@@ -190,9 +253,9 @@ export default {
     },
     // 调用项目模块列表接口，获取项目模块名称
     getModule() {
-      this.listQuery.moduleName = ''
+      this.temp.moduleName = ''
       const data = {
-        'projectName': this.listQuery.projectName
+        'projectName': this.temp.projectName
       }
       moduleNameList(data).then((response) => {
         this.moduleOptions = response.data.moduleNameList
@@ -201,13 +264,40 @@ export default {
     show() {
       this.visi = true
     },
-    // 加号
-    addList() {
-      this.studentList.push({ name: '', age: '' })
+    // 前置参数加号
+    preParameterAddList() {
+      this.temp.pre_parameter.push({ parameterType: '', parameterName: '' })
     },
-    // 减号
-    subList(index) {
-      this.studentList.splice(index, 1)
+    // 前置参数减号
+    preParameterSubList(index) {
+      this.temp.pre_parameter.splice(index, 1)
+    },
+    // 参数提取加号
+    afterParameterAddList() {
+      this.temp.after_parameter.push({ dataName: '' })
+    },
+    // 参数提取减号
+    afterParameterSubList(index) {
+      this.temp.after_parameter.splice(index, 1)
+    },
+    // 响应断言加号
+    assertParameterAddList() {
+      this.temp.assert_parameter.push({ name: '', value : '' })
+    },
+    // 响应断言减号
+    assertParameterSubList(index) {
+      this.temp.assert_parameter.splice(index, 1)
+    },
+    // 响应断言加号
+    sqlParameterAddList() {
+      this.temp.assert_sql.push({ sql: '', value : '' })
+    },
+    // 响应断言减号
+    sqlParameterSubList(index) {
+      this.temp.assert_sql.splice(index, 1)
+    },
+    submit() {
+      console.log(this.temp)
     }
   }
 }
@@ -252,15 +342,31 @@ export default {
   width: 100%;
   overflow-y: auto;
 }
+.el-col-12 {
+  width: 50%;
+  margin-left: 20px;
+}
 .el-card__body{
   height: 100%;
 } 
 .el-col {
   height: 100%;
 }
+.el-col-2 {
+  width: 30px;
+}
+.el-col-8 {
+  width: 40%;
+}
 .el-form {
   height: 90%;
 } 
+.parameter-info {
+  height: 100%;
+  width: 100%;
+  margin-left: 20px;
+  overflow-y: auto;
+}
 .verticalBar {
   width: 1px;
   height: 600px;
@@ -268,7 +374,6 @@ export default {
   display: inline-block;
   margin-top: 31px;
   vertical-align: top;
-  margin-right: 10px;
-  margin-left: 50px;
+  margin-left: 20px;
 }
 </style>
