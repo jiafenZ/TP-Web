@@ -325,13 +325,11 @@ export default {
       this.temp.assert_sql.splice(index, 1)
     },
     submit() {
-      const data = {
-        'id': localStorage.api_id
-      }
+      const data = this.$route.query.apiInfo
       console.log(data)
-      apiInfo(data).then((response) => {
-        console.log(response)
-      })
+      // apiInfo(data).then((response) => {
+      //   console.log(response)
+      // })
       // console.log(this.temp)
       // addApi(this.temp).then( () => {
       //   this.$notify({

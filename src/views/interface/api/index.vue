@@ -109,7 +109,7 @@
         class-name="small-padding fixed-width"
       >
         <template slot-scope="{ row, $index }">
-          <el-button type="primary" size="mini" style="margin-right: 10px" @click="handleEdit(row.id)">编辑</el-button>
+          <el-button type="primary" size="mini" style="margin-right: 10px" @click="handleEdit(row)">编辑</el-button>
           <el-button type="success" size="mini" style="margin-right: 10px" @click="handleUpdate(row)">调试</el-button>
           <el-popover v-model="row.visible" placement="top" width="200">
             <p>确定删除吗？</p>
@@ -215,8 +215,33 @@ export default {
     },
     handleEdit(data) {
       // 将接口ID缓存本地
-      localStorage.api_id = this.api_id
-      const routeData = this.$router.resolve({ path: './edit' })
+      const api_info = {
+        'after_parameter': data.after_parameter,
+        'apiName': data.apiName,
+        'assert_parameter': data.assert_parameter,
+        'assert_sql': data.assert_sql,
+        'body': data.body,
+        'create_time': data.create_time,
+        'create_user': data.create_user,
+        'debug_body': data.debug_body,
+        'debug_headers': data.debug_headers,
+        'headers': data.headers,
+        'id': data.id,
+        'method': data.method,
+        'moduleName': data.moduleName,
+        'path': data.path,
+        'pre_parameter': data.pre_parameter,
+        'projectName': data.projectName,
+        'update_time': data.update_time,
+        'update_user': data.update_user,
+      }
+      console.log(api_info)
+      const routeData = this.$router.resolve({ 
+        path: './edit',
+        query: {
+        'apiInfo': api_info
+        }
+      })
       window.open(routeData.href, '_blank')
     }
   }
