@@ -56,6 +56,22 @@
             </el-form-item>
 
             <el-form-item
+              :label="method"
+              prop="method"
+              placeholder="请选择请求方法"
+            >
+              <!-- 下拉搜索框 -->
+              <el-select v-model="temp.method" placeholder="请选择请求方法" clearable style="width: 54%;" class="filter-item" @keyup.enter.native="handleFilter">
+                <el-option
+                  v-for="item in methodOptions"
+                  :key="item.method"
+                  :label="item.method"
+                  :value="item.method"
+                />
+              </el-select>
+            </el-form-item>
+
+            <el-form-item
               :label="path"
               prop="path"
               placeholder="请输入请求路径"
@@ -162,6 +178,7 @@
 
 <script>
 import { projectList, moduleNameList } from '@/api/project'
+import { addApi } from '@/api/api_info'
 export default {
   name: 'Add',
   data() {
@@ -172,6 +189,8 @@ export default {
       moduleName: '模块名称',
       projectOptions: [],
       moduleOptions: [],
+      methodOptions: [{method: 'POST'}, {method: 'GET'}],
+      method: '请求方法',
       path: '请求路径',
       headers: '请求头',
       debugHeaders: '调试请求头',
@@ -190,6 +209,7 @@ export default {
         apiName: '',
         projectName: '',
         moduleName: '',
+        method: '',
         path: '',
         headers: '',
         debugHeaders: '',
@@ -225,15 +245,16 @@ export default {
           { max: 30, message: '接口名称长度不能超过30位' }
         ],
         projectName: [
-          { required: true, message: '项目名称必填', trigger: 'blur' },
-          { max: 30, message: '项目名称长度不能超过30位' }
+          { required: true, message: '请选择项目名称', trigger: 'blur' },
         ],
         moduleName: [
-          { required: true, message: '模块名称必填', trigger: 'blur' },
-          { max: 30, message: '模块名称长度不能超过30位' }
+          { required: true, message: '请选择模块名称', trigger: 'blur' },
         ],
         path: [
           { required: true, message: '请求路径必填', trigger: 'blur' }
+        ],
+        method: [
+          { required: true, message: '请选择请求方法', trigger: 'blur' }
         ]
       }
     }
@@ -298,6 +319,14 @@ export default {
     },
     submit() {
       console.log(this.temp)
+      addApi(this.temp).then( () => {
+        this.$notify({
+          title: '成功',
+          message: '创建成功',
+          type: 'success',
+          duration: 2000
+        })
+      })
     }
   }
 }
