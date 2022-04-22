@@ -145,7 +145,11 @@ export const constantRoutes = [
         path: 'add',
         name: 'add',
         component: () => import('@/views/interface/api/add')
-        // meta: { title: '添加', icon: 'tree' }
+      },
+      {
+        path: 'edit',
+        name: 'edit',
+        component: () => import('@/views/interface/api/edit')
       },
       {
         path: 'case',

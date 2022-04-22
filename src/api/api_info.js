@@ -35,3 +35,12 @@ export function apiList(data) {
     data
   })
 }
+
+// 获取单个接口信息接口
+export function apiInfo(data) {
+  return request({
+    url: '/api/info',
+    method: 'post',
+    data
+  })
+}
