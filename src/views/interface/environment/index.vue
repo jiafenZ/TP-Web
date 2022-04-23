@@ -104,6 +104,7 @@
         :label="actions"
         align="center"
         class-name="small-padding fixed-width"
+        width="180"
       >
         <template slot-scope="{ row, $index }">
           <el-button type="primary" size="mini" style="margin-right: 10px" @click="handleUpdate(row)">编辑</el-button>

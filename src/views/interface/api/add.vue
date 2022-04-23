@@ -89,11 +89,11 @@
             </el-form-item>
 
             <el-form-item
-              :label="debugHeaders"
-              prop="debugHeaders"
+              :label="debug_headers"
+              prop="debug_headers"
               placeholder="请输入调试请求头"
             >
-              <el-input v-model="temp.debugHeaders" type="textarea" />
+              <el-input v-model="temp.debug_headers" type="textarea" />
             </el-form-item>
 
             <el-form-item
@@ -105,11 +105,11 @@
             </el-form-item>
 
             <el-form-item
-              :label="debugBody"
-              prop="debugBody"
+              :label="debug_body"
+              prop="debug_body"
               placeholder="请输入调试body"
             >
-              <el-input v-model="temp.debugBody" type="textarea" />
+              <el-input v-model="temp.debug_body" type="textarea" />
             </el-form-item>
           </div>
         </el-col>
@@ -193,9 +193,9 @@ export default {
       method: '请求方法',
       path: '请求路径',
       headers: '请求头',
-      debugHeaders: '调试请求头',
+      debug_headers: '调试请求头',
       body: 'body',
-      debugBody: '调试body',
+      debug_body: '调试body',
       parameterType: '前置参数类型',
       parameterTypeOptions: [{typeName: '系统配置参数'}, {typeName: '接口返回参数'}],
       parameterName: '前置参数名称',
@@ -212,9 +212,9 @@ export default {
         method: '',
         path: '',
         headers: '',
-        debugHeaders: '',
+        debug_headers: '',
         body: '',
-        debugBody: '',
+        debug_body: '',
         pre_parameter: [
           { parameterType: '', 
             parameterName: '' 
@@ -318,8 +318,23 @@ export default {
       this.temp.assert_sql.splice(index, 1)
     },
     submit() {
-      console.log(this.temp)
-      addApi(this.temp).then( () => {
+      const api_data = {
+        'id': this.temp.id,
+        'apiName': this.temp.apiName,
+        'projectName': this.temp.projectName,
+        'moduleName': this.temp.moduleName,
+        'method': this.temp.method,
+        'path': this.temp.path,
+        'headers': this.temp.headers,
+        'debug_headers': this.temp.debug_headers,
+        'body': this.temp.body,
+        'debug_body': this.temp.debug_body,
+        'pre_parameter': JSON.stringify(this.temp.pre_parameter),
+        'after_parameter': JSON.stringify(this.temp.after_parameter),
+        'assert_parameter': JSON.stringify(this.temp.assert_parameter),
+        'assert_sql': JSON.stringify(this.temp.assert_sql)
+      }
+      addApi(api_data).then( () => {
         this.$notify({
           title: '成功',
           message: '创建成功',
@@ -401,7 +416,7 @@ export default {
   height: 600px;
   background: #D3D3D3;
   display: inline-block;
-  margin-top: 31px;
+  margin-top: 5px;
   vertical-align: top;
   margin-left: 20px;
 }

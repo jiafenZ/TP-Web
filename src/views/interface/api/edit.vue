@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
     <el-card  class="container-card">
-      <h3 class="title">新增基础接口</h3>
+      <h3 class="title">编辑基础接口</h3>
       <el-button id="debug" class="button-debug" type="success" @click="debug()">调试</el-button>
-      <el-button id="submit" class="button-submit" type="primary" @click="submit()">保存</el-button>
+      <el-button id="update" class="button-update" type="primary" @click="update()">保存</el-button>
       <el-divider style="margin-top: 3px;" />
       <el-form
         ref="dataForm"
@@ -89,11 +89,11 @@
             </el-form-item>
 
             <el-form-item
-              :label="debugHeaders"
-              prop="debugHeaders"
+              :label="debug_headers"
+              prop="debug_headers"
               placeholder="请输入调试请求头"
             >
-              <el-input v-model="temp.debugHeaders" type="textarea" />
+              <el-input v-model="temp.debug_headers" type="textarea" />
             </el-form-item>
 
             <el-form-item
@@ -105,11 +105,11 @@
             </el-form-item>
 
             <el-form-item
-              :label="debugBody"
-              prop="debugBody"
+              :label="debug_body"
+              prop="debug_body"
               placeholder="请输入调试body"
             >
-              <el-input v-model="temp.debugBody" type="textarea" />
+              <el-input v-model="temp.debug_body" type="textarea" />
             </el-form-item>
           </div>
         </el-col>
@@ -178,7 +178,8 @@
 
 <script>
 import { projectList, moduleNameList } from '@/api/project'
-import { apiInfo, updateApi } from '@/api/api_info'
+import { updateApi } from '@/api/api_info'
+import { title } from '@/settings'
 export default {
   name: 'Add',
   data() {
@@ -193,9 +194,9 @@ export default {
       method: '请求方法',
       path: '请求路径',
       headers: '请求头',
-      debugHeaders: '调试请求头',
+      debug_headers: '调试请求头',
       body: 'body',
-      debugBody: '调试body',
+      debug_body: '调试body',
       parameterType: '前置参数类型',
       parameterTypeOptions: [{typeName: '系统配置参数'}, {typeName: '接口返回参数'}],
       parameterName: '前置参数名称',
@@ -212,9 +213,9 @@ export default {
         method: '',
         path: '',
         headers: '',
-        debugHeaders: '',
+        debug_headers: '',
         body: '',
-        debugBody: '',
+        debug_body: '',
         pre_parameter: [
           { parameterType: '', 
             parameterName: '' 
@@ -263,15 +264,112 @@ export default {
     this.visi = true
   },
   created() {
+    this.getApiInfo()
     this.getProject()
   },
   methods: {
     // 获取接口信息
     getApiInfo() {
-      const apiId = localStorage.api_id
-      apiInfo(apiId).then((response) => {
-        console.log(response)
+      const data = this.$route.query.apiInfo
+      const json_data = JSON.parse(data)
+
+      // 将pre_parameter字符串转换成包含json的数组格式
+      const jsonPreParameter = json_data.pre_parameter.split('},{')
+      const preParameterLen = jsonPreParameter.length
+      const listPreParameter = []
+      jsonPreParameter.map(function(item, index, array) {
+        if (preParameterLen == 0) {
+          listPreParameter = []
+        }else if (preParameterLen == 1) {
+          const preData = item.slice(1)
+          const newData = preData.substring(0, preData.length - 1)
+          listPreParameter.push(JSON.parse(newData))
+        }else if (index == 0) {
+          listPreParameter.push(JSON.parse(item.slice(1) + '}'))
+        }else if (index == preParameterLen-1){
+          listPreParameter.push(JSON.parse('{' + item.substring(0, item.length - 1)))
+        }else {
+          listPreParameter.push(JSON.parse('{' + item + '}'))
+        }
       })
+
+      // 将after_parameter字符串转换成包含json的数组格式
+      const jsonAfterParameter = json_data.after_parameter.split('},{')
+      const AfterParameterLen = jsonAfterParameter.length
+      const listAfterParameter = []
+      jsonAfterParameter.map(function(item, index, array) {
+        if (preParameterLen == 0) {
+          listAfterParameter = []
+        }else if (AfterParameterLen == 1) {
+          const preData = item.slice(1)
+          const newData = preData.substring(0, preData.length - 1)
+          listAfterParameter.push(JSON.parse(newData))
+        }else if (index == 0) {
+          listAfterParameter.push(JSON.parse(item.slice(1) + '}'))
+        }else if (index == AfterParameterLen-1){
+          listAfterParameter.push(JSON.parse('{' + item.substring(0, item.length - 1)))
+        }else {
+          listAfterParameter.push(JSON.parse('{' + item + '}'))
+        }
+      })
+
+      // 将after_parameter字符串转换成包含json的数组格式
+      const jsonAssertParameter = json_data.assert_parameter.split('},{')
+      const AssertParameterLen = jsonAssertParameter.length
+      const listAssertParameter = []
+      jsonAssertParameter.map(function(item, index, array) {
+        if (preParameterLen == 0) {
+          listAssertParameter = []
+        }else if (AssertParameterLen == 1) {
+          const preData = item.slice(1)
+          const newData = preData.substring(0, preData.length - 1)
+          listAssertParameter.push(JSON.parse(newData))
+        }else if (index == 0) {
+          listAssertParameter.push(JSON.parse(item.slice(1) + '}'))
+        }else if (index == AssertParameterLen-1){
+          listAssertParameter.push(JSON.parse('{' + item.substring(0, item.length - 1)))
+        }else {
+          listAssertParameter.push(JSON.parse('{' + item + '}'))
+        }
+      })
+
+      // 将after_parameter字符串转换成包含json的数组格式
+      const jsonAssertSql = json_data.assert_sql.split('},{')
+      const AssertSqlLen = jsonAssertSql.length
+      const listAssertSql = []
+      jsonAssertSql.map(function(item, index, array) {
+        if (preParameterLen == 0) {
+          listAssertSql = []
+        }else if (AssertSqlLen == 1) {
+          const preData = item.slice(1)
+          const newData = preData.substring(0, preData.length - 1)
+          listAssertSql.push(JSON.parse(newData))
+        }else if (index == 0) {
+          listAssertSql.push(JSON.parse(item.slice(1) + '}'))
+        }else if (index == AssertSqlLen-1){
+          listAssertSql.push(JSON.parse('{' + item.substring(0, item.length - 1)))
+        }else {
+          listAssertSql.push(JSON.parse('{' + item + '}'))
+        }
+      })
+
+      const api_data = {
+        'id': json_data.id,
+        'apiName': json_data.apiName,
+        'projectName': json_data.projectName,
+        'moduleName': json_data.moduleName,
+        'method': json_data.method,
+        'path': json_data.path,
+        'headers': json_data.headers,
+        'debug_headers': json_data.debug_headers,
+        'body': json_data.body,
+        'debug_body': json_data.debug_body,
+        'pre_parameter': listPreParameter,
+        'after_parameter': listAfterParameter,
+        'assert_parameter': listAssertParameter,
+        'assert_sql': listAssertSql
+      }
+      this.temp = api_data
     },
     // 调用项目列表接口，获取项目名称
     getProject() {
@@ -324,21 +422,32 @@ export default {
     sqlParameterSubList(index) {
       this.temp.assert_sql.splice(index, 1)
     },
-    submit() {
-      const data = this.$route.query.apiInfo
-      console.log(data)
-      // apiInfo(data).then((response) => {
-      //   console.log(response)
-      // })
-      // console.log(this.temp)
-      // addApi(this.temp).then( () => {
-      //   this.$notify({
-      //     title: '成功',
-      //     message: '创建成功',
-      //     type: 'success',
-      //     duration: 2000
-      //   })
-      // })
+    update() {
+      const api_data = {
+        'id': this.temp.id,
+        'apiName': this.temp.apiName,
+        'projectName': this.temp.projectName,
+        'moduleName': this.temp.moduleName,
+        'method': this.temp.method,
+        'path': this.temp.path,
+        'headers': this.temp.headers,
+        'debug_headers': this.temp.debug_headers,
+        'body': this.temp.body,
+        'debug_body': this.temp.debug_body,
+        'pre_parameter': JSON.stringify(this.temp.pre_parameter),
+        'after_parameter': JSON.stringify(this.temp.after_parameter),
+        'assert_parameter': JSON.stringify(this.temp.assert_parameter),
+        'assert_sql': JSON.stringify(this.temp.assert_sql)
+      }
+      updateApi(api_data).then( () => {
+        this.$notify({
+          title: '成功',
+          message: '修改成功',
+          type: 'success',
+          duration: 2000
+        })
+        document.getElementById('update').blur()
+      })
     }
   }
 }
@@ -371,7 +480,7 @@ export default {
   margin-left: 15px;
   display: inline-block;
 }
-.button-submit {
+.button-update {
   float: right;
   display: inline-block;
 }
@@ -413,7 +522,7 @@ export default {
   height: 600px;
   background: #D3D3D3;
   display: inline-block;
-  margin-top: 31px;
+  margin-top: 5px;
   vertical-align: top;
   margin-left: 20px;
 }

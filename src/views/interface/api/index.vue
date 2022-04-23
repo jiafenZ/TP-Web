@@ -107,9 +107,10 @@
         :label="actions"
         align="center"
         class-name="small-padding fixed-width"
+        width="260"
       >
         <template slot-scope="{ row, $index }">
-          <el-button type="primary" size="mini" style="margin-right: 10px" @click="handleEdit(row)">编辑</el-button>
+          <el-button id="edit" type="primary" size="mini" style="margin-right: 10px" @click="handleEdit(row)">编辑</el-button>
           <el-button type="success" size="mini" style="margin-right: 10px" @click="handleUpdate(row)">调试</el-button>
           <el-popover v-model="row.visible" placement="top" width="200">
             <p>确定删除吗？</p>
@@ -135,7 +136,7 @@
 
 <script>
 
-import { apiList } from '@/api/api_info'
+import { apiList, deleteApi } from '@/api/api_info'
 import { projectList, moduleNameList } from '@/api/project'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -200,7 +201,6 @@ export default {
         this.list = response.data.apiList
         this.total = response.data.total
         this.listLoading = false
-        document.getElementById('add').blur()
       })
     },
     handleFilter() {
@@ -210,39 +210,36 @@ export default {
       document.getElementById('select').blur()
     },
     handleCreate() {
+      document.getElementById('add').blur()
+      // 跳转新增页面
       const routeData = this.$router.resolve({ path: './add' })
       window.open(routeData.href, '_blank')
     },
     handleEdit(data) {
-      // 将接口ID缓存本地
-      const api_info = {
-        'after_parameter': data.after_parameter,
-        'apiName': data.apiName,
-        'assert_parameter': data.assert_parameter,
-        'assert_sql': data.assert_sql,
-        'body': data.body,
-        'create_time': data.create_time,
-        'create_user': data.create_user,
-        'debug_body': data.debug_body,
-        'debug_headers': data.debug_headers,
-        'headers': data.headers,
-        'id': data.id,
-        'method': data.method,
-        'moduleName': data.moduleName,
-        'path': data.path,
-        'pre_parameter': data.pre_parameter,
-        'projectName': data.projectName,
-        'update_time': data.update_time,
-        'update_user': data.update_user,
-      }
-      console.log(api_info)
+      // 跳转编辑页面，并传递接口参数
+      document.getElementById('edit').blur()
       const routeData = this.$router.resolve({ 
         path: './edit',
         query: {
-        'apiInfo': api_info
+        apiInfo: JSON.stringify(data)
         }
       })
       window.open(routeData.href, '_blank')
+    },
+    handleDelete(row, index) {
+      const api_id = {
+        'id': index.id
+      }
+      deleteApi(api_id).then(() => {
+        this.getList()
+        this.$notify({
+          title: '成功',
+          message: '删除成功',
+          type: 'success',
+          duration: 2000
+        })
+        this.list.splice(index, 1)
+      })
     }
   }
 }
